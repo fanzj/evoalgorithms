@@ -221,6 +221,5 @@ params = [0.9,0.1,0.5]
 filename = './results/ga_res_' + time.strftime('%Y-%m-%d',time.localtime(time.time()))
 gaAlg = GeneticAlgorithm(sizepop,vardim,bound,maxgen,params,filename)
 gaAlg.solve()
-gaAlg.printResult()
-		
+gaAlg.printResult()	
 
