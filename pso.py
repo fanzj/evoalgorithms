@@ -188,9 +188,9 @@ class PSOAlgorithm:
 		f.close()
 
 		
-		# 记录pso当前时间每次运行的最优适应度
+		# save optimal fitness value for each iter
 		f2 = open(op.getOptimalPath('pso')+'.txt','a+')
-		# 写入配置信息
+		# write config infos
 		f2.write('sizepop: %d; dimension: %d; maxgen: %d\n' % (self.sizepop, self.vardim, self.maxgen))
 		f2.write('wmax: %f; wmin: %f; c1: %f; c2: %f\n' % (self.params[0], self.params[1], self.params[2], self.params[3]))
 		f2.write("Optimal function value is: %f\n\n" % self.gbest.fitness)
