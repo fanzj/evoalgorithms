@@ -1,0 +1,48 @@
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -55.720465
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -48.478527
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -45.905298
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -50.264795
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -49.707522
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 2.000000; c2: 2.000000
+Optimal function value is: -43.788348
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 2.000000; c2: 2.000000
+Optimal function value is: -50.329529
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 2.000000; c2: 2.000000
+Optimal function value is: -48.322205
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 2.000000; c2: 2.000000
+Optimal function value is: -45.893852
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 2.000000; c2: 2.000000
+Optimal function value is: -45.000858
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 2.000000; c2: 2.000000
+Optimal function value is: -51.468208
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -52.559630
+

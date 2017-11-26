@@ -1,6 +1,7 @@
-
+# -*- coding:utf-8 -*-
 import math
 import random
+import time
 
 def fitness(chrom):
 	chrom_len = len(chrom)
@@ -10,10 +11,6 @@ def fitness(chrom):
 			sum += (0.5 ** k * math.cos(3 ** k * math.pi * chrom[i] + 0.5) + math.sin(5 ** k * math.pi * chrom[i]))
 	return sum
 
-'''
-chrom = []
-for i in range(0,10):
-	chrom.append(random.gauss(0,1))
+def getOptimalPath(algType):
+	return './results/optimal/' + algType + '_' + time.strftime('%Y-%m-%d',time.localtime(time.time()))
 
-print fitness(chrom)
-'''

@@ -86,7 +86,7 @@ class PSOAlgorithm:
 
 	def printResult(self):
 		'''
-		plot the result of the genetic algorithm
+		plot the result of the particle swarm optimization algorithm
 		'''
 		x = np.arange(0, self.maxgen)
 		y1 = self.trace[:, 0]
@@ -148,23 +148,6 @@ class PSOAlgorithm:
 			if self.pbest[k].fitness < self.gbest.fitness:
 				self.gbest = copy.deepcopy(self.pbest[k])
 
-	def printResult(self):
-		'''
-		plot the result of the genetic algorithm
-		'''
-		x = np.arange(0, self.maxgen)
-		y1 = self.trace[:, 0]
-		y2 = self.trace[:, 1]
-		plt.plot(x,y1,'r',label='optimal value')
-		plt.plot(x,y2,'g',label='average value')
-		plt.xlabel("Iteration")
-		plt.ylabel("function value")
-		plt.title("Genetic algorithm for function optimization")
-		plt.legend()
-		plt.show()
-
-
-
 	def solve(self):
 		'''
 		evolution process of pso
@@ -202,9 +185,13 @@ class PSOAlgorithm:
 		f.write(str(self.gbest.x))
 		f.close()
 
-
-
-
+		# 记录pso当前时间每次运行的最优适应度
+		f2 = open(op.getOptimalPath('pso')+'.txt','a+')
+		# 写入配置信息
+		f2.write('sizepop: %d; dimension: %d; maxgen: %d\n' % (self.sizepop, self.vardim, self.maxgen))
+		f2.write('wmax: %f; wmin: %f; c1: %f; c2: %f\n' % (self.params[0], self.params[1], self.params[2], self.params[3]))
+		f2.write("Optimal function value is: %f\n\n" % self.gbest.fitness)
+		f2.close()
 		
 
 
@@ -213,6 +200,7 @@ vardim = 15
 bound = np.tile([[-3],[3],[-1],[1]],vardim)
 maxgen = 100
 params = [0.9,0.4,1.49618,1.49618]
+# params = [0.9, 0.4, 2.0, 2.0]
 filename = './results/pso_res_' + time.strftime('%Y-%m-%d', time.localtime(time.time()))
 pso = PSOAlgorithm(sizepop,vardim,bound,maxgen,params,filename)
 pso.solve()
