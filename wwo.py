@@ -9,25 +9,25 @@ import math
 import sys
 
 class WaveIndividual:
-	def __init__(self,vardim,bound,waveheight):
+	def __init__(self,vardim,bound,amplitude):
 		self.vardim = vardim
 		self.bound = bound
-		self.waveheight = waveheight
-		self.wavelen = 0.5
+		self.amplitude = amplitude # 振幅 （波长）
+		self.wavelen = 0.5 # 波长
 		self.fitness = 0.
 
 
 	def generate(self):
 		rnd = np.random.random(self.vardim)
-		self.wave = np.zeros(self.vardim)
+		self.x = np.zeros(self.vardim)
 		for i in range(0,self.vardim):
-			self.wave[i] = self.bound[0,i] + (self.bound[1,i] - self.bound[0,i]) * rnd[i]
+			self.x[i] = self.bound[0,i] + (self.bound[1,i] - self.bound[0,i]) * rnd[i]
 
 	def calculateFitness(self):
-		self.fitness = op.fitness(self.wave)
+		self.fitness = op.fitness(self.x)
 
 	def printIndividual(self):
-		print 'fitness:',self.fitness,'wave:',self.wave
+		print 'fitness:',self.fitness,'x:',self.x
 
 class WWOAlgorithm:
 	def __init__(self,vardim,bound,maxgen,params,filename):
@@ -47,28 +47,31 @@ class WWOAlgorithm:
 		self.filename = filename
 		self.population = []
 		self.sizepop = params[5]
-		self.fitness = np.zeros((self.sizepop,1))
 		self.trace = np.zeros((self.maxgen,2))
-		self.beta = params[3]
+
+		self.beta = params[3] # 初始碎浪范围系数
+		self.btimes = params[6] # 碎浪个数
+		self.hmax = params[0] # 初始波高（振幅）
+		self.alpha = params[1] # 波长递减基数
 		self.epsilon = 0.0001
-		self.kmax = min(12, self.vardim / 2)
-		self.dimrange = []
+		#self.kmax = min(12, self.vardim / 2)
+		self.dimrange = [] # 搜索范围
+		self.dimsrange = [] # 碎浪范围
 		for i in range(0,self.vardim):
 			self.dimrange.append(self.bound[1,i] - self.bound[0,i])
+		    self.dimsrange.append(self.beta * self.dimrange[i])
+	
+		self.best = None # 当前种群的最优解
+		self.worst = None # 当前种群的最差解
 
 	def initialize(self):
 		for i in range(0,self.sizepop):
-			ind = WaveIndividual(self.vardim,self.bound,self.params[0])
+			ind = WaveIndividual(self.vardim,self.bound,self.hmax)
 			ind.generate()
+			ind.calculateFitness()
 			self.population.append(ind)
-
-	def evaluateAll(self):
-		for i in range(0, self.sizepop):
-			self.evaluate(i)
-
-	def evaluate(self, waveIndex):
-		self.population[waveIndex].calculateFitness()
-		self.fitness[waveIndex] = self.population[waveIndex].fitness
+			self.fitness[i] = ind.fitness
+		self.initBestWorst()
 
 	def initBestWorst(self):
 		bestIndex = np.argmin(self.fitness)
@@ -76,12 +79,24 @@ class WWOAlgorithm:
 		worstIndex = np.argmax(self.fitness)
 		self.worst = copy.deepcopy(self.population[worstIndex])
 
+	def evaluate(self, wave):
+		wave.calculateFitness()
+		return wave.fitness
+
 	def updateBestWorst(self):
 		for i in range(0, self.sizepop):
 			if self.population[i].fitness < self.best.fitness:
 				self.best = copy.deepcopy(self.population[i])
 			if self.population[i].fitness > self.worst.fitness:
 				self.worst = copy.deepcopy(self.population[i])
+	
+	def calculate(self):
+		for i in range(0, self.sizepop):
+			new_wavelen = self.population[i].wavelen
+			r = math.pow(self.alpha, -(self.population[i].fitness - self.worst.fitness + self.epsilon) / (self.best.fitness - self.worst.fitness + self.epsilon))
+			self.population[i].wavelen *= r
+		self.beta = self.params[3] - (self.params[3] - self.params[2]) * self.t / self.maxgen
+		self.dimsrange = self.beta * self.dimrange
 
 	def updateSizepop(self):
 		'''
@@ -89,153 +104,114 @@ class WWOAlgorithm:
 		'''
 		self.sizepop = self.params[4] - (self.params[5] - self.params[4]) * self.t / self.maxgen
 
-	def updateBeta(self):
+	def propagate(self, w,index):
 		'''
-		update the cofficient of beta
+		传播
 		'''
-		self.beta = self.params[3] - (self.params[3] - self.params[2]) * self.t / self.maxgen
+		w1 = copy.deepcopy(w)
+		for d in range(0,self.vardim):
+			w1.x[d] += (random.random() * 2 - 1) * w1.wavelen * self.dimrange[d]
+			if w1.x[d] < self.bound[0,d] or w1.x[d] > self.bound[1,d]:
+				w1.x[d] = self.bound[0,d] + random.random() * (self.bound[1,d] - self.bound[0,d])
+		self.evaluate(w1)
+		w1.amplitude = self.hmax
+		return w1
 
-	def updateWavelen(self):
+	def refract(self, w, index):
 		'''
-		update the wave length
+		折射
 		'''
-		for i in range(0, self.sizepop):
-			new_wavelen = self.population[i].wavelen
-			new_wavelen *= math.pow(self.params[1], -(self.population[i].fitness - self.worst.fitness + self.epsilon) / (self.best.fitness - self.worst.fitness + self.epsilon))
-			self.population[i].wavelen = new_wavelen
+		w1 = copy.deepcopy(w)
+		for d in range(0,self.vardim):
+			u = (w.x[d] + self.best.x[d]) / 2.0
+			g = abs(self.best.x[d] - w.x[d]) / 2.0
+			w1.x[d] = random.gauss(u, math.sqrt(g))
+			if w1.x[d] < self.bound[0,d] or w1.x[d] > self.bound[1,d]:
+				w1.x[d] = self.bound[0,d] + random.random() * (self.bound[1,d] - self.bound[0,d])
+		self.evaluate(w1)
+		w1.amplitude = self.hmax
+		w1.wavelen = w.wavelen * w1.fitness / w.fitness
+		return w1
 
-	def propagate(self, waveIndex):
+
+	def breaking(self, w):
 		'''
-		传播算子
+		碎浪
 		'''
-		new_wavelen = self.population[waveIndex].wavelen
-		new_wave = self.population[waveIndex].wave
-		for j in range(0,self.vardim):
-			r = random.uniform(-1,1)
-			temp = new_wave[j] + r * new_wavelen * self.dimrange[j]
-			if temp > self.bound[1, j]:
-				temp = self.bound[1,j]
-			if temp < self.bound[0,j]:
-				temp = self.bound[0,j]
+		w1 = copy.deepcopy(w)
+		d = random.randint(self.vardim-1)
+		w1.x[d] += random.gauss(0,1) * self.dimsrange[d]
+		if w1.x[d] < self.bound[0,d] or w1.x[d] > self.bound[1,d]:
+			w1.x[d] = self.bound[0,d] + random.random() * (self.bound[1,d] - self.bound[0,d])
+		self.evaluate(w1)
+		if w1.fitness < w.fitness:
+			w1.amplitude = self.hmax
+			w1.wavelen  = w.wavelen * w1.fitness / w.fitness
+			if self.beta > 0.003:
+				self.beta *= 0.9999
+				for i in range(0,self.vardim):
+					self.dimsrange[i] = self.beta * self.dimrange[i]
+			return w1
+		return w
 
-		self.population[waveIndex].wave = new_wave
-		self.evaluate(waveIndex)
-
-	def refract(self, waveIndex):
+	def multibreak(self,w,times):
 		'''
-		折射算子
+		多次碎浪
 		'''
-		originWave = copy.deepcopy(self.population[waveIndex])
-		new_wave = self.population[waveIndex].wave
-		new_bestwave = self.best.wave
-		for j in range(0,self.vardim):
-			'''
-			高斯分布 N(u,g)
-			'''
-			u = (new_wave[j] + new_bestwave[j]) / 2.0
-			g = abs(new_bestwave[j] - new_wave[j]) / 2.0
-			r = random.gauss(u, math.sqrt(g))
-			if r > self.bound[1,j]:
-				r = self.bound[1,j]
-			if r < self.bound[0,j]:
-				r = self.bound[0,j]
+		for i in range(0,times):
+			w1 = self.breaking(w)
+			if w1.fitness < w.fitness:
+				w = w1
+		return w
 
-			new_wave[j] = r
+	def continuebreak(self,w):
+		w1 = self.breaking(w)
+		while w1.fitness < w.fitness:
+			w = w1
+			w1 = self.breaking(w1)
+		return w
 
-		self.population[waveIndex].wave = new_wave
-		self.evaluate(waveIndex)
-		self.population[waveIndex].waveheight = self.params[0]
-
-		r = originWave.fitness / self.population[waveIndex].fitness
-		if r < 1: 
-			'''
-			折射后，波长减小，说明解更优，更新
-			'''
-			w = originWave.wavelen * r
-			self.population[waveIndex].wavelen = w
+	def surge(self,w,index):
+		w1 = self.propagate(wave,index)
+		print 'w1.fitness: %f; w.fitness: %f' % (w1.fitness, w.fitness)
+		if w1.fitness < w.fitness:
+			if w1.fitness < self.best.fitness:
+				times = min(round(self.btimes * self.best.fitness) / w1.fitness, self.vardim/2)
+				w1 = self.multibreak(w1,times)
+				self.best = copy.deepcopy(w1)
+			return w1
 		else:
-			'''
-			保留原有解，不做操作
-			'''
-			self.population[waveIndex] = originWave
-		return self.population[waveIndex]
+			w.amplitude -= 1
+			if w.amplitude == 0 and w.fitness > self.best.fitness:
+				w = self.refract(w,index)
+				if w.fitness < self.best.fitness:
+					self.best = copy.deepcopy(w)
+			return w
 
-
-	def breaking(self, waveIndex):
-		'''
-		碎浪算子
-		'''
-		kbest = WaveIndividual(self.vardim,self.bound,self.params[0])
-		kbest.generate()
-		kbest.fitness = sys.maxint * 1.0
-
-		k = random.randint(1,self.kmax)
-		for i in range(0,k+1):
-			new_wave = copy.deepcopy(self.population[i])
-			dimpos = random.randint(self.vardim - 1)
-			wave_x = new_wave.wave
-			temp = wave_x[dimpos] + random.gauss(0,1) * self.beta * self.dimrange[dimpos]
-
-			if temp > self.bound[1, dimpos]:
-				temp = self.bound[1, dimpos]
-			if temp < self.bound[0, dimpos]:
-				temp = self.bound[0, dimpos]
-
-			wave_x[dimpos] = temp
-			new_wave.wave = wave_x
-			new_wave.calculateFitness()
-
-			if new_wave.fitness < kbest.fitness:
-				kbest = new_wave
-
-		if kbest.fitness < self.best.fitness:
-			'''
-			最优的独立波比最优的波好
-			'''
-			self.best = kbest
-
-
-	def evoluation(self):
-		'''
-		进化 整合传播、折射、碎浪
-		'''
-		for i in range(0,self.sizepop):
-			tempWave = copy.deepcopy(self.population[i]) # 未作修改
-			self.propagate(i)
-			if self.population[i].fitness < tempWave.fitness:
-				self.population[i].waveheight = self.params[0]
-				if self.population[i].fitness < self.best.fitness:
-					self.best = copy.deepcopy(self.population[i])
-					self.breaking(self.population[i])
-				tempWave = self.population[i]
-			else:
-				h = tempWave.waveheight
-				h -= 1
-				tempWave.waveheight = h
-				if h == 0:
-					tempWave = self.refract(i)
-			self.population[i] = copy.deepcopy(tempWave)
+	def saveBestMean(self):
+		self.trace[self.t,0] = self.best.fitness
+		fit = []
+		for i in range(0, self.sizepop):
+			fit.append(self.population[i].fitness)
+		self.trace[self.t,1] = np.mean(fit)
 
 	def solve(self):
 		f = open(self.filename+'.txt','w')
 		self.t = 0
 		self.initialize()
-		self.evaluateAll()
-		self.initBestWorst()
-		self.trace[self.t,0] = self.best.fitness
-		self.trace[self.t,1] = np.mean(self.fitness)
+		self.saveBestMean()
 		print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t, self.trace[self.t,0], self.trace[self.t,1]))
 		f.write('Generation %d: optimal function value is: %f; average function value is %f\n' % (self.t, self.trace[self.t, 0], self.trace[self.t, 1]))
 		while self.t < self.maxgen -1:
 			self.t += 1
-			self.evoluation()
-			self.updateWavelen()
+
+			for i in range(0,self.sizepop):
+				self.population[i] = self.surge(self.population[i],i)
 			self.updateBestWorst()
-			self.updateBeta()
+			self.calculate()
 			# self.updateSizepop()
 
-			self.trace[self.t,0] = self.best.fitness
-			self.trace[self.t,1] = np.mean(self.fitness)
+			self.saveBestMean()
 			print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t, self.trace[self.t,0], self.trace[self.t,1]))
 			f.write('Generation %d: optimal function value is: %f; average function value is %f\n' % (self.t, self.trace[self.t, 0], self.trace[self.t, 1]))
 		print("Optimal function value is: %f" % self.best.fitness)
@@ -252,7 +228,7 @@ class WWOAlgorithm:
 vardim = 15
 bound = np.tile([[-3],[3]],vardim)
 maxgen = 100
-params = [12,1.0026,0.001,0.25,3,50]
+params = [12,1.0026,0.001,0.25,3,50,12]
 filename = './results/wwo_res_' + time.strftime('%Y-%m-%d',time.localtime(time.time()))
 wwo = WWOAlgorithm(vardim,bound,maxgen,params,filename)
 wwo.solve()
