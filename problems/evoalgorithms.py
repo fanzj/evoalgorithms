@@ -13,4 +13,3 @@ def fitness(chrom):
 
 def getOptimalPath(algType):
 	return './results/optimal/' + algType + '_' + time.strftime('%Y-%m-%d',time.localtime(time.time()))
-

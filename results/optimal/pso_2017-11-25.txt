@@ -1,4 +1,0 @@
-sizepop: 50; dimension: 15; maxgen: 100
-wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
-Optimal function value is: -56.724075
-

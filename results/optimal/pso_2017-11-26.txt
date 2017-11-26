@@ -46,3 +46,123 @@ sizepop: 50; dimension: 15; maxgen: 100
 wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
 Optimal function value is: -52.559630
 
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -45.107109
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -44.211026
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -43.274475
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -46.237681
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -58.187415
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -50.020732
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -45.179663
+
+sizepop: 5; dimension: 3; maxgen: 5
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -7.365294
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -45.616544
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -42.033969
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 2.000000; c2: 2.000000
+Optimal function value is: -46.584594
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 2.000000; c2: 2.000000
+Optimal function value is: -56.545495
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -49.132047
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -40.235420
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -49.413138
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -25.155996
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -46.341237
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -49.067623
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -48.468313
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -46.297896
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -49.954472
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -41.648262
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -48.633026
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -52.924934
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -61.572319
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -45.113460
+
+sizepop: 50; dimension: 15; maxgen: 200
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -47.475156
+
+sizepop: 50; dimension: 15; maxgen: 200
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -61.667153
+
+sizepop: 50; dimension: 15; maxgen: 200
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -69.636600
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -42.196929
+
