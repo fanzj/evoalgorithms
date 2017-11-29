@@ -30,8 +30,9 @@ class WaveIndividual:
 		print 'fitness:',self.fitness,'x:',self.x
 
 class WWOAlgorithm:
-	def __init__(self,vardim,bound,maxgen,params,filename):
-		'''
+
+    def __init__(self,vardim,bound,maxgen,params,filename):
+        '''
 		sizepop: population size (sizepop[0] = min, sizepop[1] = max)
 		vardim: dimension of variables
 		bound: boundaries of variables
@@ -39,32 +40,31 @@ class WWOAlgorithm:
 		params: algorithm required parameters, it is a list 
 		(params[0] = hmax, params[1] = alpha, params[2] = beta min, params[3] = beta max, params[4] = min population size,
 		params[5] = max population size) 
-		'''
-		self.vardim = vardim
-		self.bound = bound
-		self.maxgen = maxgen
-		self.params = params
-		self.filename = filename
-		self.population = []
-		self.sizepop = params[5]
-		self.trace = np.zeros((self.maxgen,2))
-
-		self.beta = params[3] # 初始碎浪范围系数
-		self.btimes = params[6] # 碎浪个数
-		self.hmax = params[0] # 初始波高（振幅）
-		self.alpha = params[1] # 波长递减基数
-		self.epsilon = 0.0001
+        '''
+        self.vardim = vardim
+        self.bound = bound
+        self.maxgen = maxgen
+        self.params = params
+        self.filename = filename
+        self.population = []
+        self.sizepop = params[5]
+        self.trace = np.zeros((self.maxgen,2))
+        self.fitness = np.zeros((self.sizepop,1))
+        self.beta = params[3] # 初始碎浪范围系数
+        self.btimes = params[6] # 碎浪个数
+        self.hmax = params[0] # 初始波高（振幅）
+        self.alpha = params[1] # 波长递减基数
+        self.epsilon = 0.0001
 		#self.kmax = min(12, self.vardim / 2)
-		self.dimrange = [] # 搜索范围
-		self.dimsrange = [] # 碎浪范围
-		for i in range(0,self.vardim):
+        self.dimrange = [] # 搜索范围
+        for i in range(0,self.vardim):
 			self.dimrange.append(self.bound[1,i] - self.bound[0,i])
-		    self.dimsrange.append(self.beta * self.dimrange[i])
+        self.dimsrange = [self.beta * x for x in self.dimrange] # 碎浪范围
 	
-		self.best = None # 当前种群的最优解
-		self.worst = None # 当前种群的最差解
+        self.best = None # 当前种群的最优解
+        self.worst = None # 当前种群的最差解
 
-	def initialize(self):
+    def initialize(self):
 		for i in range(0,self.sizepop):
 			ind = WaveIndividual(self.vardim,self.bound,self.hmax)
 			ind.generate()
@@ -73,38 +73,38 @@ class WWOAlgorithm:
 			self.fitness[i] = ind.fitness
 		self.initBestWorst()
 
-	def initBestWorst(self):
+    def initBestWorst(self):
 		bestIndex = np.argmin(self.fitness)
 		self.best = copy.deepcopy(self.population[bestIndex])
 		worstIndex = np.argmax(self.fitness)
 		self.worst = copy.deepcopy(self.population[worstIndex])
 
-	def evaluate(self, wave):
+    def evaluate(self, wave):
 		wave.calculateFitness()
 		return wave.fitness
 
-	def updateBestWorst(self):
+    def updateBestWorst(self):
 		for i in range(0, self.sizepop):
 			if self.population[i].fitness < self.best.fitness:
 				self.best = copy.deepcopy(self.population[i])
 			if self.population[i].fitness > self.worst.fitness:
 				self.worst = copy.deepcopy(self.population[i])
 	
-	def calculate(self):
+    def calculate(self):
 		for i in range(0, self.sizepop):
 			new_wavelen = self.population[i].wavelen
 			r = math.pow(self.alpha, -(self.population[i].fitness - self.worst.fitness + self.epsilon) / (self.best.fitness - self.worst.fitness + self.epsilon))
 			self.population[i].wavelen *= r
 		self.beta = self.params[3] - (self.params[3] - self.params[2]) * self.t / self.maxgen
-		self.dimsrange = self.beta * self.dimrange
+		self.dimsrange = [self.beta * x for x in self.dimrange]
 
-	def updateSizepop(self):
+    def updateSizepop(self):
 		'''
 		population size gradually decrease
 		'''
-		self.sizepop = self.params[4] - (self.params[5] - self.params[4]) * self.t / self.maxgen
+		self.sizepop = self.params[5] - (self.params[5] - self.params[4]) * self.t / self.maxgen
 
-	def propagate(self, w,index):
+    def propagate(self, w,index):
 		'''
 		传播
 		'''
@@ -117,7 +117,7 @@ class WWOAlgorithm:
 		w1.amplitude = self.hmax
 		return w1
 
-	def refract(self, w, index):
+    def refract(self, w, index):
 		'''
 		折射
 		'''
@@ -134,12 +134,12 @@ class WWOAlgorithm:
 		return w1
 
 
-	def breaking(self, w):
+    def breaking(self, w):
 		'''
 		碎浪
 		'''
 		w1 = copy.deepcopy(w)
-		d = random.randint(self.vardim-1)
+		d = random.randint(0,self.vardim-1)
 		w1.x[d] += random.gauss(0,1) * self.dimsrange[d]
 		if w1.x[d] < self.bound[0,d] or w1.x[d] > self.bound[1,d]:
 			w1.x[d] = self.bound[0,d] + random.random() * (self.bound[1,d] - self.bound[0,d])
@@ -154,7 +154,7 @@ class WWOAlgorithm:
 			return w1
 		return w
 
-	def multibreak(self,w,times):
+    def multibreak(self,w,times):
 		'''
 		多次碎浪
 		'''
@@ -164,16 +164,16 @@ class WWOAlgorithm:
 				w = w1
 		return w
 
-	def continuebreak(self,w):
+    def continuebreak(self,w):
 		w1 = self.breaking(w)
 		while w1.fitness < w.fitness:
 			w = w1
 			w1 = self.breaking(w1)
 		return w
 
-	def surge(self,w,index):
-		w1 = self.propagate(wave,index)
-		print 'w1.fitness: %f; w.fitness: %f' % (w1.fitness, w.fitness)
+    def surge(self,w,index):
+		w1 = self.propagate(w,index)
+		# print 'w1.fitness: %f; w.fitness: %f' % (w1.fitness, w.fitness)
 		if w1.fitness < w.fitness:
 			if w1.fitness < self.best.fitness:
 				times = min(round(self.btimes * self.best.fitness) / w1.fitness, self.vardim/2)
@@ -188,14 +188,29 @@ class WWOAlgorithm:
 					self.best = copy.deepcopy(w)
 			return w
 
-	def saveBestMean(self):
+    def saveBestMean(self):
 		self.trace[self.t,0] = self.best.fitness
 		fit = []
 		for i in range(0, self.sizepop):
 			fit.append(self.population[i].fitness)
 		self.trace[self.t,1] = np.mean(fit)
 
-	def solve(self):
+    def printResult(self):
+		'''
+		plot the result of the water wave optimization algorithm
+		'''
+		x = np.arange(0, self.maxgen)
+		y1 = self.trace[:, 0]
+		y2 = self.trace[:, 1]
+		plt.plot(x,y1,'r',label='optimal value')
+		plt.plot(x,y2,'g',label='average value')
+		plt.xlabel("Iteration")
+		plt.ylabel("function value")
+		plt.title("Water wave optimization algorithm for function optimization")
+		plt.legend()
+		plt.show()
+
+    def solve(self):
 		f = open(self.filename+'.txt','w')
 		self.t = 0
 		self.initialize()
@@ -209,17 +224,17 @@ class WWOAlgorithm:
 				self.population[i] = self.surge(self.population[i],i)
 			self.updateBestWorst()
 			self.calculate()
-			# self.updateSizepop()
-
+			#self.updateSizepop()
 			self.saveBestMean()
+			#print self.t,":",self.sizepop
 			print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t, self.trace[self.t,0], self.trace[self.t,1]))
 			f.write('Generation %d: optimal function value is: %f; average function value is %f\n' % (self.t, self.trace[self.t, 0], self.trace[self.t, 1]))
 		print("Optimal function value is: %f" % self.best.fitness)
 		f.write("Optimal function value is: %f\n" % self.best.fitness)
 		print("Optimal solution is:")
-		print(self.best.wave)
+		print(self.best.x)
 		f.write("Optimal solution is:\n")
-		f.write(str(self.best.wave))
+		f.write(str(self.best.x))
 		f.close()
 
 
@@ -232,4 +247,6 @@ params = [12,1.0026,0.001,0.25,3,50,12]
 filename = './results/wwo_res_' + time.strftime('%Y-%m-%d',time.localtime(time.time()))
 wwo = WWOAlgorithm(vardim,bound,maxgen,params,filename)
 wwo.solve()
+wwo.printResult()
+
 
