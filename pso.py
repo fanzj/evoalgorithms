@@ -164,7 +164,7 @@ class PSOAlgorithm:
 		'''
 		f = open(self.filename+'.txt','w')
 		self.t = 0
-		self.w = params[0]
+		self.w = self.params[0]
 		self.initialize()
 
 		self.saveBestMean()
