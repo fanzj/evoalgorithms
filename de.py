@@ -72,6 +72,9 @@ class DEAlgorithm:
         self.trace[self.t,1] = np.mean(self.fitness)
 
     def diffEvolve(self,s,index):
+        '''
+        DE/rand/1
+        '''
         r1,r2,r3 = tl.randomSelectThreeIndices(self.sizepop, index)
         u = copy.deepcopy(s)
         j = random.randint(0,self.vardim-1)
@@ -82,6 +85,24 @@ class DEAlgorithm:
                     u.x[d] = self.bound[0,d] + random.random() * (self.bound[1,d] - self.bound[0,d])
         self.evaluate(u)
         return u
+
+    def diffEvolve2(self,s,index):
+        '''
+        DE/rand-to-best/2
+        '''
+        r1,r2 = tl.randomSelectTwoIndices(self.sizepop, index)
+        u = copy.deepcopy(s)
+        j = random.randint(0,self.vardim-1)
+        for d in range(0,self.vardim):
+            if random.random() < self.crossRate or j == d:
+                u.x[d] = u.x[d] + self.scalfingF * (self.best.x[d] - u.x[d]) + self.scalfingF * (self.population[r1].x[d] - self.population[r2].x[d])
+                if u.x[d] < self.bound[0,d] or u.x[d] > self.bound[1,d]:
+                    u.x[d] = self.bound[0,d] + random.random() * (self.bound[1,d] - self.bound[0,d])
+        self.evaluate(u)
+        return u
+
+
+
 
     def updateBest(self):
         bestIndex = np.argmin(self.fitness)
@@ -111,7 +132,7 @@ class DEAlgorithm:
         f.write('Generation %d: optimal function value is: %f; average function value is %f\n' % (self.t, self.trace[self.t, 0], self.trace[self.t, 1]))
         while self.t < self.maxgen - 1:
             for i in range(0,self.sizepop):
-                u = self.diffEvolve(self.population[i],i)
+                u = self.diffEvolve2(self.population[i],i)
                 if u.fitness < self.population[i].fitness:
                     self.population[i] = u
             self.t += 1
