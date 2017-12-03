@@ -1,0 +1,12 @@
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -47.329855
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -42.669263
+
+sizepop: 50; dimension: 15; maxgen: 100
+wmax: 0.900000; wmin: 0.400000; c1: 1.496180; c2: 1.496180
+Optimal function value is: -48.507584
+
