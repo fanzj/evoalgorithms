@@ -62,6 +62,7 @@ class BBOAlgorithm:
         self.cWorst = None # 当前种群的最差解
         self.best = None # 全局最优解
         self.epsilon = 0.00000000001
+        self.perform = np.zeros(3) 
 
     def initialize(self):
         for i in range(0,self.sizepop):
@@ -117,13 +118,9 @@ class BBOAlgorithm:
         u = copy.deepcopy(h)
         for d in range(0,self.vardim):
             if random.random() < h.lam:
-                selectSol = self.rouletteSelect(h)
-                '''
-                while selectSol == None:
-                    selectSol = self.rouletteSelect(h)
-                '''
+                selectSol = self.rouletteSelect(h) # 轮盘赌选择
                 u.x[d] = selectSol.x[d]
-                print 'self.t:%d; index:%d; muSum:%f' % (self.t,index,self.muSum)
+                #print 'self.t:%d; index:%d; d:%d; muSum:%f' % (self.t,index,d,self.muSum)
                 if bChanged == False:
                     bChanged = True
         if bChanged:
@@ -131,36 +128,26 @@ class BBOAlgorithm:
         return u
 
     def rouletteSelect(self, h):
-        '''
-        bug所在？
-        muSum 减小为负数
-        '''
-        '''
-        if self.muSum == 0:
-            for i in range(0,self.sizepop):
-                self.muSum += self.population[i].mu
-        '''
-        self.muSum = 0.
+        muList = np.zeros((self.sizepop,1)) # 种群中各个个体的迁出率
         for i in range(0,self.sizepop):
-            self.muSum += self.population[i].mu
-        self.muSum -= h.mu
-        r = random.random() * self.muSum
-        cEm = 0.
-        sel = None
-        for i in range(0, self.sizepop):
-            if id(h) == id(self.population[i]):
-                continue
-                #print 'self.t: %d; i: %d; id(h): %d' % (self.t,i,id(h))
-            cEm += self.population[i].mu
-            if r < cEm:
-                sel = self.population[i]
+            muList[i] = self.population[i].mu
+        totalMu = np.sum(muList)
+        accuMu = np.zeros((self.sizepop,1))
+
+        accuMu[0] = muList[0] / totalMu
+        for i in range(1,self.sizepop):
+            accuMu[i] = accuMu[i-1] + muList[i]/totalMu
+
+        r = random.random()
+        selected = 0
+        for i in range(0,self.sizepop):
+            if i == 0 and r < accuMu[i]:
+                selected = 0
                 break
-            
-        if sel == None:
-            print "r: %f; cEm: %f; muSum: %f; i: %d" % (r,cEm,self.muSum,i)
-            h.printIndividual()
-            print "se is none"
-        return sel
+            elif r < accuMu[i]:
+                selected = i
+                break
+        return self.population[selected]
 
     def mutate(self, h, index):
         '''
@@ -180,9 +167,10 @@ class BBOAlgorithm:
     def updateBest(self):
         self.cBest = self.population[0]
         self.cWorst = self.population[self.sizepop - 1]
+        #print 't: %d; cBest: %f; cWorst: %f; best: %f' % (self.t, self.cBest.fitness, self.cWorst.fitness, self.best.fitness)
         if self.cBest.fitness < self.best.fitness:
             self.best = copy.deepcopy(self.cBest)
-            print 'best update'
+            self.perform[0] += 1
         elif self.cBest.fitness > self.best.fitness:
             '''
             elite
@@ -190,11 +178,11 @@ class BBOAlgorithm:
             for i in range(self.sizepop-1,0,-1):
                 self.population[i] = self.population[i-1]
             self.cBest = copy.deepcopy(self.best)
-            self.population[0] = copy.deepcopy(self.best)
-            self.cWorst = self.population[self.sizepop-1]
-            print 'elite'
+            self.population[0] = self.cBest
+            self.cWorst = copy.deepcopy(self.population[self.sizepop-1])
+            self.perform[1] += 1
         else:
-            print 'do nothing'
+            self.perform[2] += 1
 
     def saveBestMean(self):
         self.trace[self.t,0] = self.best.fitness
@@ -209,6 +197,10 @@ class BBOAlgorithm:
 
     def printBest(self):
         print 'best: %f; cBest: %f; cWorst: %f' % (self.best.fitness, self.cBest.fitness, self.cWorst.fitness)
+
+    def printPop(self, pop):
+        for i in range(0,self.sizepop):
+            pop[i].printIndividual()
     
     def testSortPopulationByFitness(self):
         '''
@@ -254,29 +246,31 @@ class BBOAlgorithm:
         self.initialize()
         self.saveBestMean()
         self.calculate()
-        #print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
-        #f.write("Generation %d: optimal function value is: %f; average function value is %f\n" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
+        print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
+        f.write("Generation %d: optimal function value is: %f; average function value is %f\n" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
         while self.t < self.maxgen - 1:
             self.t += 1
             pop1 = []
             for i in range(0,self.sizepop):
                 pop1.append(self.migrate(self.population[i],i))
-            sorted(pop1,key=attrgetter('fitness'))
+            pop1 = sorted(pop1,key=attrgetter('fitness'))
             for i in range(self.sizepop / 2, self.sizepop):
                 pop1[i] = self.mutate(self.population[i],i)
-            sorted(pop1, key=attrgetter('fitness'))
+            pop1 = sorted(pop1, key=attrgetter('fitness'))
             self.population = pop1
             self.updateBest()
             self.saveBestMean()
             self.calculate()
-            #print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
-            #f.write("Generation %d: optimal function value is: %f; average function value is %f\n" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
+            print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
+            f.write("Generation %d: optimal function value is: %f; average function value is %f\n" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
         print("Optimal function value is: %f" % self.best.fitness)
         f.write("Optimal function value is: \n%f" % self.best.fitness)
         print("Optimal solution is:")
         print(self.best.x)
         f.write("Optimal solution is:\n")
         f.write(str(self.best.x))
+
+        print self.perform
         f.close
 
 
