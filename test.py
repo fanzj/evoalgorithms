@@ -21,3 +21,11 @@ print range(1,11/2 + 1)
 print 2!=2
 
 print range(10-1,0,-1)
+
+bound = np.tile([[-3],[3]],5)
+print 0.02*(bound[1] - bound[0])
+print int(round(0.3 * 34))
+a = [1,2,3]
+b = [4,5,6,7,8]
+a.extend(b)
+print a

@@ -1,4 +1,4 @@
-Generation 0: optimal function value is: -31.429287; average function value is -1.433252
+Generation 0: optimal function value is: -24.018499; average function value is -1.724362
 Generation 1: optimal function value is: 0.000000; average function value is 0.000000
 Generation 2: optimal function value is: 0.000000; average function value is 0.000000
 Generation 3: optimal function value is: 0.000000; average function value is 0.000000
@@ -99,7 +99,7 @@ Generation 97: optimal function value is: 0.000000; average function value is 0.
 Generation 98: optimal function value is: 0.000000; average function value is 0.000000
 Generation 99: optimal function value is: 0.000000; average function value is 0.000000
 Optimal function value is: 
--31.429287Optimal solution is:
-[ 2.68152006 -2.05710823 -2.64023758  1.00980528 -0.81977722  1.2775228
- -1.84481802 -0.628532    2.7042897  -2.63777674  2.6090965  -1.29535085
- -0.83881722 -0.64541181  2.7763087 ]
+-24.018499Optimal solution is:
+[ 1.45955842 -1.01625998  1.21830346 -2.55385399 -1.38092012  1.88160503
+ -1.78096663  0.75706377  0.41507867 -0.14312528  2.27365228 -0.95747084
+ -2.85768186 -0.42258282  2.28682272]
