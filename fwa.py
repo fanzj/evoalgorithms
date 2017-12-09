@@ -99,7 +99,7 @@ class FWAAlgorithm:
             for j in range(0, self.vardim):
                 if random.random() < 0.5:
                     continue
-                amp = A < self.AMin[j] ? self.AMin[j] : A
+                amp = self.AMin[j] if A < self.AMin[j] else A
                 sparks[i].x[j] += (amp * (random.random() * 2 -1))
                 if sparks[i].x[j] < self.bound[0,j] or sparks[i].x[j] > self.bound[1,j]:
                     sparks[i].x[j] = self.bound[0,j] + random.random() * (self.bound[1,j] - self.bound[0,j])
@@ -107,6 +107,24 @@ class FWAAlgorithm:
             if bChanged:
                 self.evaluate(sparks[i])
         return sparks
+
+    def explodeGauss(self,sol):
+        '''
+        对解(烟花)sol进行高斯爆破
+        '''
+        spark = copy.deepcopy(sol)
+        g = random.gauss(0,1)
+        bChanged = False
+        for j in range(0,self.vardim):
+            if random.random() < 0.5:
+                continue
+            spark.x[j] += (g * (self.best.x[j] - spark.x[j]))
+            if spark.x[j] < self.bound[0,j] or spark.x[j] > self.bound[1,j]:
+                spark.x[j] = self.bound[0,j]+ random.random() * (self.bound[1,j] - self.bound[0,j])
+            bChanged = True
+        if bChanged:
+            self.evaluate(spark)
+        return spark
 
 
     def evaluate(self,sol):
@@ -118,6 +136,36 @@ class FWAAlgorithm:
         for i in range(0,self.sizepop):
             self.fitness[i] = self.population[i].fitness
         self.trace[self.t,1] = np.mean(self.fitness)
+
+    def pickBest(self,sparks):
+        minIndex = 0
+        minFitness = sparks[0].fitness
+        for i in range(1,len(sparks)):
+            if minFitness > sparks[i].fitness:
+                minFitness = sparks[i].fitness
+                minIndex = i
+        return sparks[minIndex]
+
+    def select(self,sparks):
+        '''
+        从当前烟花和火星集合中选取新的烟花种群
+        '''
+        pop1 = self.randomSelect(sparks,self.sizepop)
+        cBest = self.pickBest(sparks)
+        if cBest.fitness < self.best.fitness:
+            self.best = copy.deepcopy(cBest)
+        pop1[0] = copy.deepcopy(cBest)
+        return pop1
+
+    def randomSelect(self,pop,k):
+        '''
+        随机从种群中选择k个
+        '''
+        sels = []
+        for i in range(0,k):
+            pos = random.randint(0,len(pop)-1)
+            sels.append(pop[pos])
+        return sels
 
     def printPop(self, pop):
         for i in range(0,self.sizepop):
@@ -153,8 +201,15 @@ class FWAAlgorithm:
             sparks = []
             for p in self.population:
                 sparks.extend(self.explode(p))
+            cBest = copy.deepcopy(self.pickBest(sparks))
+            if cBest.fitness < self.best.fitness:
+                self.best = copy.deepcopy(cBest)
             
-
+            sels = self.randomSelect(self.population,self.Mg)
+            for i in range(0,self.Mg):
+                sparks.append(self.explodeGauss(sels[i]))
+            self.population = self.select(sparks)
+            self.saveBestMean()
 
             print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
             f.write("Generation %d: optimal function value is: %f; average function value is %f\n" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
@@ -177,5 +232,5 @@ params = []
 filename = './results/fwa_res' + time.strftime('%Y-%m-%d', time.localtime(time.time()))
 fwa = FWAAlgorithm(sizepop,vardim,bound,maxgen,params,filename)
 fwa.solve()
-# fwa.printResult()
+fwa.printResult()
       

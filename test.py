@@ -26,6 +26,8 @@ bound = np.tile([[-3],[3]],5)
 print 0.02*(bound[1] - bound[0])
 print int(round(0.3 * 34))
 a = [1,2,3]
+print len(a)
 b = [4,5,6,7,8]
 a.extend(b)
 print a
+print random.gauss(0,1)
