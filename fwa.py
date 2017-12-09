@@ -196,9 +196,9 @@ class FWAAlgorithm:
         print("Generation %d: optimal function value is: %f; average function value is %f" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
         f.write("Generation %d: optimal function value is: %f; average function value is %f\n" % (self.t,self.trace[self.t,0],self.trace[self.t,1]))
         while self.t < self.maxgen -1:
-            self.t += 1
             self.calculate()
-            sparks = []
+            self.t += 1
+            sparks = copy.deepcopy(self.population)
             for p in self.population:
                 sparks.extend(self.explode(p))
             cBest = copy.deepcopy(self.pickBest(sparks))
